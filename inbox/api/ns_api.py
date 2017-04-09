@@ -249,6 +249,12 @@ def one_account():
     return encoder.jsonify(g.namespace)
 
 
+@app.route('/account', methods=('DELETE',))
+def delete_account():
+    g.namespace.account.mark_for_deletion()
+    return '', 204
+
+
 #
 # Threads
 #
