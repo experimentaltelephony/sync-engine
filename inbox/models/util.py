@@ -102,6 +102,11 @@ def get_accounts_to_delete(shard_id):
     return ids_to_delete
 
 
+def delete_marked_accounts(shard_id, throttle, dry_run):
+    ids = get_accounts_to_delete(shard_id)
+    return batch_delete_namespaces(ids, throttle, dry_run)
+
+
 class AccountDeletionErrror(Exception):
     pass
 
