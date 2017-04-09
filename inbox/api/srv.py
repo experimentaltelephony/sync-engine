@@ -1,3 +1,4 @@
+import hashlib
 from flask import Flask, request, jsonify, make_response, g
 from flask.ext.restful import reqparse
 from werkzeug.exceptions import default_exceptions, HTTPException
@@ -10,8 +11,10 @@ from inbox.models.session import global_session_scope
 from inbox.api.validation import (bounded_str, ValidatableArgument,
                                   strict_parse_args, limit)
 from inbox.api.validation import valid_public_id
+from inbox.models.oauth import OAuthBearerToken
 
 from ns_api import app as ns_api
+from connect_api import app as connect_api
 from ns_api import DEFAULT_LIMIT
 
 from inbox.webhooks.gpush_notifications import app as webhooks_api
@@ -41,7 +44,7 @@ for code in default_exceptions.iterkeys():
 def auth():
     """ Check for account ID on all non-root URLS """
     if request.path in ('/accounts', '/accounts/', '/') \
-            or request.path.startswith('/w/'):
+            or request.path.startswith('/w/') or request.path.startswith('/connect'):
         return
 
     if not request.authorization or not request.authorization.username:
@@ -59,16 +62,15 @@ def auth():
 
         if (len(parts) != 2 or parts[0].lower() != 'bearer' or not parts[1]):
             return make_response(AUTH_ERROR_MSG)
-        namespace_public_id = parts[1]
+        access_token = parts[1]
 
     else:
-        namespace_public_id = request.authorization.username
+        access_token = request.authorization.username
 
     with global_session_scope() as db_session:
         try:
-            valid_public_id(namespace_public_id)
-            namespace = db_session.query(Namespace) \
-                .filter(Namespace.public_id == namespace_public_id).one()
+            bearer_token = db_session.query(OAuthBearerToken).filter_by(access_token=hashlib.sha256(access_token).hexdigest()).one()
+            namespace = bearer_token.namespace
             g.namespace_id = namespace.id
             g.account_id = namespace.account.id
         except NoResultFound:
@@ -130,4 +132,5 @@ def logout():
 
 
 app.register_blueprint(ns_api)
+app.register_blueprint(connect_api)
 app.register_blueprint(webhooks_api)  # /w/...
