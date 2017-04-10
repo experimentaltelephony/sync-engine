@@ -47,10 +47,12 @@ def authorize():
             raise InputError('Already have this account!')
         if reauth and not account:
             reauth = False
+        if provider == 'imap':
+            provider = 'custom'
         auth_handler = handler_from_provider(provider)
         auth_info = deepcopy(settings)
         for protocol in ('smtp', 'imap'):
-            for setting in ('hostname', 'port'):
+            for setting in ('host', 'port'):
                 key = '{protocol}_{setting}'.format(protocol=protocol, setting=setting)
                 new_key = '{protocol}_server_{setting}'.format(protocol=protocol, setting=setting)
                 if key in auth_info:
