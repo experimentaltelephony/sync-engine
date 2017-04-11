@@ -57,6 +57,11 @@ def authorize():
                 new_key = '{protocol}_server_{setting}'.format(protocol=protocol, setting=setting)
                 if key in auth_info:
                     auth_info[new_key] = auth_info.pop(key)
+        for setting in ('refresh_token', 'id_token', 'scope', 'client_id', 'client_secret'):
+            key = 'google_' + setting
+            new_key = setting
+            if key in auth_info:
+                auth_info[new_key] = auth_info.pop(key)
         auth_info['name'] = 'name'
         auth_info['provider'] = provider
         auth_info['email'] = email_address
