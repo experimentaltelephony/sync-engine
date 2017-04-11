@@ -7,12 +7,11 @@ import nacl.utils
 
 
 def main():
-    from inbox.config import config, secrets_path
+    from inbox.config import config
 
     # If the config contains encryption keys, don't override.
     if config.get('SECRET_ENCRYPTION_KEY'):
-        raise Exception('Encryption keys already present in secrets config '
-                        'file {0}'.format(secrets_path))
+        raise Exception('Encryption keys already present in secrets config file')
 
     # Generate keys
     data = {
@@ -26,12 +25,11 @@ def main():
     # so it better exist.
     # Update it
     try:
-        with open(secrets_path, 'a') as f:
-            print 'Writing keys to secrets config file {0}'.format(secrets_path)
+        with open('/etc/inboxapp/secrets.yml', 'a') as f:
+            print 'Writing keys to secrets config file'
             yaml.dump(data, f, default_flow_style=False)
     except IOError:
-        raise Exception('Check file write permissions on config file {0}'.
-                        format(secrets_path))
+        raise Exception('Check file write permissions on config file')
 
     # Update the config dict
     config.update(data)

@@ -39,10 +39,12 @@ def run(throttle, dry_run):
 
 
 def delete_account_data(host, throttle, dry_run):
+    log.info("Running on %s" % host['HOSTNAME'])
     while True:
         for shard in host['SHARDS']:
             # Ensure shard is explicitly not marked as disabled
             if 'DISABLED' in shard and not shard['DISABLED']:
+                log.info("Running on %s shard %d" % (host['HOSTNAME'], shard['ID']))
                 delete_marked_accounts(shard['ID'], throttle, dry_run)
         gevent.sleep(600)
 

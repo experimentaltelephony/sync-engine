@@ -8,6 +8,7 @@ from werkzeug.exceptions import BadRequest, Forbidden
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from inbox.api.kellogs import APIEncoder
+from inbox.auth.gmail import OAUTH_SCOPE as GMAIL_OAUTH_SCOPE
 from inbox.auth.base import handler_from_provider
 from inbox.api.err import InputError
 from inbox.models.session import session_scope_by_shard_id, session_scope, global_session_scope
@@ -62,6 +63,10 @@ def authorize():
             new_key = setting
             if key in auth_info:
                 auth_info[new_key] = auth_info.pop(key)
+
+        if provider == 'gmail':
+            auth_info['scope'] = auth_info.get('scope', GMAIL_OAUTH_SCOPE)
+
         auth_info['name'] = 'name'
         auth_info['provider'] = provider
         auth_info['email'] = email_address
