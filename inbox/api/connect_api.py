@@ -66,6 +66,7 @@ def authorize():
 
         if provider == 'gmail':
             auth_info['scope'] = auth_info.get('scope', GMAIL_OAUTH_SCOPE)
+            auth_info['id_token'] = auth_info.get('id_token', '')
 
         auth_info['name'] = 'name'
         auth_info['provider'] = provider
