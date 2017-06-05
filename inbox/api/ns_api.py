@@ -685,7 +685,7 @@ def folders_labels_create_api():
     valid_display_name(g.namespace.id, category_type, display_name,
                        g.db_session)
 
-    if g.namespace.account.provider not in ['gmail', 'eas']:
+    if g.namespace.account.provider not in ['gmail', 'eas', '_outlook']:
         # Translate the name of the folder to an actual IMAP name
         # (e.g: "Accounting/Taxes" becomes "Accounting.Taxes")
         display_name = imap_folder_path(
@@ -742,7 +742,7 @@ def folder_label_update_api(public_id):
     valid_display_name(g.namespace.id, category_type, display_name,
                        g.db_session)
 
-    if g.namespace.account.provider not in ['gmail', 'eas']:
+    if g.namespace.account.provider not in ['gmail', 'eas', '_outlook']:
         # Translate the name of the folder to an actual IMAP name
         # (e.g: "Accounting/Taxes" becomes "Accounting.Taxes")
         display_name = imap_folder_path(

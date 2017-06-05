@@ -40,6 +40,7 @@ from inbox.models.session import session_scope
 from inbox.models.backends.imap import ImapAccount
 from inbox.models.backends.generic import GenericAccount
 from inbox.models.backends.gmail import GmailAccount
+from inbox.models.backends.outlook import OutlookAccount
 from inbox.folder_edge_cases import localized_folder_names
 from nylas.logging import get_logger
 log = get_logger()
@@ -222,6 +223,8 @@ class CrispinConnectionPool(object):
                 account = db_session.query(GmailAccount).options(
                     joinedload(GmailAccount.auth_credentials)).get(
                     self.account_id)
+            elif self.provider == '_outlook':
+                account = db_session.query(OutlookAccount).get(self.account_id)
             else:
                 account = db_session.query(GenericAccount).options(
                     joinedload(GenericAccount.imap_secret)

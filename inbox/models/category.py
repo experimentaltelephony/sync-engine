@@ -141,7 +141,7 @@ class Category(MailSyncBase, HasRevisions, HasPublicID, UpdatedAtMixin,
             elif self.display_name.startswith('[Google Mail]/'):
                 return self.display_name[14:]
 
-        if self.namespace.account.provider not in ['gmail', 'eas']:
+        if self.namespace.account.provider not in ['gmail', 'eas', '_outlook']:
             return fs_folder_path(self.display_name,
                                   separator=self.namespace.account.folder_separator,
                                   prefix=self.namespace.account.folder_prefix)
