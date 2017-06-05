@@ -33,7 +33,6 @@ def authorize():
         provider = data['provider']
         settings = data['settings']
         reauth_account_id = data.get('reauth_account_id') or data.get('reauth')
-        reauth = bool(reauth_account_id)
     except KeyError as exc:
         field_name = exc.args[0]
         raise InputError("Missing required field %s" % field_name)
@@ -43,11 +42,10 @@ def authorize():
             oauth_client = global_db_session.query(OAuthClient).filter_by(client_id=client_id).one()
         except NoResultFound:
             raise Forbidden("Invalid client_id %s" % client_id)
-        account = global_db_session.query(Account).filter_by(email_address=email_address).first()
-        if account is not None and not reauth:
-            raise InputError('Already have this account!')
-        if reauth and not account:
-            reauth = False
+        if reauth_account_id:
+            account = global_db_session.query(Account).filter_by(public_id=reauth_account_id).first()
+        if reauth_account_id and not account:
+            reauth_account_id = False
         if provider == 'imap':
             provider = 'custom'
         auth_handler = handler_from_provider(provider)
@@ -72,14 +70,14 @@ def authorize():
         auth_info['provider'] = provider
         auth_info['email'] = email_address
     try:
-            if reauth:
+            if reauth_account_id:
                 session_manager = session_scope(account.namespace.id)
             else:
                 account = auth_handler.create_account(email_address, auth_info)
                 session_manager = session_scope_by_shard_id(shard_id)
             with session_manager as db_session:
                 db_session.add(account)
-                if reauth:
+                if reauth_account_id:
                     account = auth_handler.update_account(account, auth_info)
                 if auth_handler.verify_account(account):
                     grant, code = OAuthGrant.create(account, oauth_client.id)
